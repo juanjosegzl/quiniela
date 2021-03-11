@@ -1,0 +1,95 @@
+{% extends "predictions/base.html" %}
+
+{% block main-area %}
+
+  {% for category_id, category in categories.items %}
+    <section>
+      <h2 id="section-{{ category_id }}">{{ category.name }}</h2>
+      <div
+        id="carousel-category-{{ category_id }}"
+        class="carousel slide"
+        data-bs-ride="carousel"
+        data-bs-interval="false"
+        >
+        <div class="carousel-indicators">
+          {% for entity in category.entities %}
+            <button
+              type="button"
+              data-bs-target="#carousel-category-{{ category_id }}"
+              data-bs-slide-to="{{ forloop.counter0 }}"
+              class="{% if forloop.first %}active{% endif %}"
+              >
+            </button>
+          {% endfor %}
+        </div>
+        <div class="carousel-inner">
+          {% for entity in category.entities %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <h3>{{ entity.name }}</h3>
+              <div
+                id="{{category_id}}-{{ entity.id}}{{ entity.youtube_video_id }}"
+                class="yt-player"
+                data-video-id="{{ entity.youtube_video_id }}"
+                >
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#carousel-category-{{ category_id }}"
+          data-bs-slide="prev"
+          >
+          <span class="carousel-control-prev-icon"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#carousel-category-{{ category_id }}"
+          data-bs-slide="next"
+          >
+          <span class="carousel-control-next-icon"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+
+      <div class="row">
+        {% if request.user.is_authenticated %}
+          {% for entity in category.entities %}
+            <div class="col-4">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="radio[{{category_id}}]" id="radio-{{category.name}}-{{entity.id}}" value="{{ entity.id }}">
+                <label class="form-check-label" for="radio-{{category.name}}-{{entity.id}}">
+                  {{ entity.name }}
+                </label>
+              </div>
+            </div>
+            {% endfor %}
+        {% else %}
+          <div class="col">
+            <a
+              href="{% url "login" %}"
+              type="button" class="btn btn-primary"
+              >Sign up to vote
+            </a>
+          </div>
+          {% endif %}
+      </div>
+    </section>
+  {% endfor %}
+
+{% endblock %}
+
+
+{% block sidebar %}
+  <nav id="navbar" class="navbar sticky-top">
+    <nav class="nav nav-pills flex-column">
+      {% for category_id, category in categories.items %}
+        <a class="nav-link" href="#carousel-category-{{ category_id }}">{{ category.name }}</a>
+      {% endfor %}
+    </nav>
+    <button form="predictions-form" type="submit" class="btn btn-primary">Submit</button>
+  </nav>
+{% endblock %}
