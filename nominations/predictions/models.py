@@ -65,6 +65,45 @@ class Nomination(models.Model):
             ]
         )
 
+    def get_nominations():
+        nominations = (
+            Nomination.objects
+            .filter(event_id=1)
+            .select_related("category")
+            .select_related("entity")
+            .annotate(
+                category_name=models.F("category__name"),
+                entity_name=models.F("entity__name"),
+                youtube_video_id=models.F("entity__youtube_video_id"),
+            )
+            .values(
+                "category_id",
+                "category_name",
+                "entity_id",
+                "entity_name",
+                "youtube_video_id",
+            )
+        )
+
+        categories = {}
+
+        for nomination in nominations:
+            category_id = nomination['category_id']
+            if category_id not in categories:
+                categories[category_id] = {
+                    'name': nomination['category_name'],
+                    'entities': list()
+                }
+
+            categories[category_id]['entities'].append({
+                'id': nomination['entity_id'],
+                'name': nomination['entity_name'],
+                'youtube_video_id': nomination['youtube_video_id'],
+            })
+
+        return categories
+
+
 
 class Prediction(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -75,3 +114,32 @@ class Prediction(models.Model):
 
     def __str__(self):
         return f"{self.user.username} | {self.event.name} | {self.category.name} | {self.entity.name}"
+
+    def get_nominations(user_id):
+        nominations = (
+            Prediction.objects
+            .filter(event_id=1)
+            .filter(user_id=user_id)
+            .select_related("category")
+            .select_related("entity")
+            .annotate(
+                category_name=models.F("category__name"),
+                entity_name=models.F("entity__name"),
+            )
+            .values(
+                "category_id",
+                "category_name",
+                "entity_id",
+                "entity_name",
+            )
+        )
+
+        predictions = [
+            {
+                'category': nomination['category_name'],
+                'entity': nomination['entity_name']
+            }
+            for nomination
+            in nominations
+        ]
+        return predictions

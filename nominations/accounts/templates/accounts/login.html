@@ -2,10 +2,12 @@
 
 {% block main-area %}
   <h1>Login</h1>
-  <form action="{% url "login" %}" method="post">{% csrf_token %}
+  <form action="{% url "login" %}" method="post">
+    {% csrf_token %}
     {{ form.as_p }}
 
     <input type="hidden" name="next" value="{{ next }}" />
     <input type="submit" value="Submit" />
   </form>
+  <a href="{% url "user_registration" %}">Crear nueva cuenta</a>
 {% endblock %}

@@ -1,9 +1,10 @@
 {% extends "predictions/base.html" %}
 
 {% block main-area %}
-
+<form id="predictions-form" action="{% url "index" %}" method="POST">
+  {% csrf_token %}
   {% for category_id, category in categories.items %}
-    <section>
+  <section>
       <h2 id="section-{{ category_id }}">{{ category.name }}</h2>
       <div
         id="carousel-category-{{ category_id }}"
@@ -57,16 +58,9 @@
 
       <div class="row">
         {% if request.user.is_authenticated %}
-          {% for entity in category.entities %}
-            <div class="col-4">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="radio[{{category_id}}]" id="radio-{{category.name}}-{{entity.id}}" value="{{ entity.id }}">
-                <label class="form-check-label" for="radio-{{category.name}}-{{entity.id}}">
-                  {{ entity.name }}
-                </label>
-              </div>
-            </div>
-            {% endfor %}
+          {% autoescape off %}
+            {{ form | get_item:category_id }}
+          {% endautoescape %}
         {% else %}
           <div class="col">
             <a
@@ -79,17 +73,30 @@
       </div>
     </section>
   {% endfor %}
-
+</form>
 {% endblock %}
 
 
 {% block sidebar %}
-  <nav id="navbar" class="navbar sticky-top">
-    <nav class="nav nav-pills flex-column">
-      {% for category_id, category in categories.items %}
-        <a class="nav-link" href="#carousel-category-{{ category_id }}">{{ category.name }}</a>
-      {% endfor %}
+  <div class="sticky-top">
+    <nav id="navbar" class="navbar">
+      <nav class="nav nav-pills flex-column">
+        {% for category_id, category in categories.items %}
+          <a class="nav-link {% if forloop.first %}active{% endif %}" href="#carousel-category-{{ category_id }}">{{ category.name }}</a>
+        {% endfor %}
+      </nav>
     </nav>
-    <button form="predictions-form" type="submit" class="btn btn-primary">Submit</button>
-  </nav>
+
+    <nav class="navbar">
+      <nav class="nav nav-pills flex-column">
+        {% if request.user.is_authenticated %}
+          <a class="nav-link" href="{% url "predictions" %}">My Predictions</a>
+          <a class="nav-link" href="{% url "logout" %}">Logout</a>
+          <button form="predictions-form" type="submit" class="btn btn-primary">Submit</button>
+        {% else %}
+          <a class="nav-link" href="{% url "login" %}">Login</a>
+        {% endif %}
+      </nav>
+    </nav>
+  </div>
 {% endblock %}

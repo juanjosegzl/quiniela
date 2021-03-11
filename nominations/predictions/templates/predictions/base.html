@@ -19,7 +19,7 @@
       #header {
         background-image: url("{% static 'predictions/oscars-header.png' %}");
         height: 100px;
-        margin-bottom: 24px;
+        margin-bottom: 12px;
         padding: 24px 12px;
       }
 
@@ -51,10 +51,10 @@
 
       .carousel-item iframe {
         display: block;
-        margin: 120px auto;
+        margin: 80px auto;
       }
 
-      .navbar {
+      #navbar {
         border-left: 1px solid #B09A51;
       }
 
@@ -67,7 +67,7 @@
       }
 
       section {
-        padding: 60px 0;
+        padding: 20px 0;
       }
 
       .btn-primary {
@@ -95,7 +95,7 @@
   <body
     data-bs-spy="scroll"
     data-bs-target="#navbar"
-    data-bs-offset="80"
+    data-bs-offset="120"
     >
     <div class="container">
       <div class="row" id="header">
@@ -105,11 +105,9 @@
       </div>
       <div class="row">
         <div class="main-area col-9">
-          <form id="predictions-form">
-            {% block main-area %}
-            {% endblock %}
-          </form>
-          </div> <!-- /main-area -->
+          {% block main-area %}
+          {% endblock %}
+        </div> <!-- /main-area -->
 
           <div class="sidebar col-3">
             {% block sidebar %}
