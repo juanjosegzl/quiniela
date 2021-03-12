@@ -8,6 +8,11 @@ from django.views.decorators.cache import cache_page
 from django.template.defaulttags import register
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
+from django.http import Http404
+
+import os
 
 PROMOTED_EVENT_ID = 1
 
@@ -81,10 +86,28 @@ def index(request):
         request, "predictions/main-area.html", {"categories": categories, "form": form}
     )
 
+VOTING_IS_OVER = os.getenv('VOTING_IS_OVER', False)
+
 @login_required
-def my_predictions(request):
-    predictions = Prediction.get_nominations(request.user.id)
+def my_predictions(request, username=None):
+    if username is None or not VOTING_IS_OVER:
+        username = request.user.username
+
+    user = User.objects.filter(username=username)
+    if len(user) == 0:
+        raise Http404("That user does not exists.")
+
+    predictions = Prediction.get_predictions_by_username(username)
 
     return render(
-        request, "predictions/my-votes.html", {"predictions": predictions}
+        request, "predictions/predictions.html", {
+            "predictions": predictions,
+            "username": username
+        }
     )
+
+def error_404(request, exception):
+    return render(request,'predictions/error_404.html')
+
+def error_500(request):
+    return render(request,'predictions/error_404.html')

@@ -115,11 +115,11 @@ class Prediction(models.Model):
     def __str__(self):
         return f"{self.user.username} | {self.event.name} | {self.category.name} | {self.entity.name}"
 
-    def get_nominations(user_id):
+    def get_predictions_by_username(username):
         nominations = (
             Prediction.objects
             .filter(event_id=1)
-            .filter(user_id=user_id)
+            .filter(user__username=username)
             .select_related("category")
             .select_related("entity")
             .annotate(
